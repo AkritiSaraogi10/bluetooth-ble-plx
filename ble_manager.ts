@@ -82,7 +82,9 @@ export default function useBLE(): BluetoothLowEnergyApi {
                 setIsScanning(false);
                 return;
             }
-            if (device) {
+            if (device
+                && device.name?.startsWith('Point')
+            ) {
                 console.log(
                     'Device serviceUUIDs:',
                     device.discoverAllServicesAndCharacteristics(),
