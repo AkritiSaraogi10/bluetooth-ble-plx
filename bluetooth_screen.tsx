@@ -5,7 +5,7 @@ import useBLE from './ble_manager';
 import { Strings } from './constants/app_strings';
 import { styles } from './constants/app_styles';
 
-export const BluetoothScreen = () => {
+const BluetoothScreen = () => {
     const { requestPermissions,
         scanForDevices,
         connectToDevice,
