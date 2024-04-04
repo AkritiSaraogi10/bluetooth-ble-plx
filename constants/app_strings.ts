@@ -1,0 +1,15 @@
+export const Strings = {
+    SCANNING_TEXT: "SCANNING...",
+    SCAN_TEXT: "SCAN",
+    CONNECT_TEXT: "Connect",
+    DISCONNECT_TEXT: "Disconnect",
+    ERROR_TITLE: "Error",
+    ERROR_DESCRIPTION: "An error occurred while scanning for devices.",
+    PERMISSION_ALERT_TITLE: "App would like to use Bluetooth.",
+    PERMISSION_ALERT_MESSAGE: "This app uses Bluetooth to connect to and share information with your device.",
+    PERMISSION_DENIED_TEXT: "Don't allow",
+    TURN_ON_TEXT: "Turn ON",
+    DEVICE_NAME_TEXT: "Device Name:",
+    DEVICE_ID_TEXT: "Device ID:",
+    DEVICE_VALUE_TEXT: "Device Value:",
+}

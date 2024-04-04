@@ -1,82 +1,117 @@
-import React, { useState } from 'react';
-import { SafeAreaView, Text, TouchableOpacity, View, Modal, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Button, Text, View, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
+import { Device } from 'react-native-ble-plx';
 import useBLE from './ble_manager';
-const BluetoothScreen = () => {
-    const [visible, setVisible] = useState(false);
-    const { requestPermissions, scanForDevices, allDevices } = useBLE();
+import { Strings } from './constants/app_strings';
+import { styles } from './constants/app_styles';
+
+export const BluetoothScreen = () => {
+    const { requestPermissions,
+        scanForDevices,
+        connectToDevice,
+        disconnectFromDevice,
+        allDevices,
+        connectedDevice,
+        scanningError,
+        isScanning,
+        deviceName,
+        deviceValue,
+        connectingError,
+        BLTManager } = useBLE();
+
+    useEffect(() => {
+        const subscription = BLTManager.onStateChange((state) => {
+            if (state === 'PoweredOff') {
+                Alert.alert(
+                    Strings.PERMISSION_ALERT_TITLE,
+                    Strings.PERMISSION_ALERT_MESSAGE,
+                    [
+                        {
+                            text: Strings.PERMISSION_DENIED_TEXT,
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        {
+                            text: Strings.TURN_ON_TEXT,
+                            onPress: () => {
+                                BLTManager.enable();
+                            }
+                        },
+                    ]
+                );
+                subscription.remove();
+            }
+        }, true);
+
+        if (scanningError) {
+            ToastAndroid.showWithGravity(
+                scanningError,
+                ToastAndroid.LONG,
+                ToastAndroid.CENTER,
+            );
+        }
+        if (connectingError) {
+            console.log("connectingError ", connectingError.reason);
+            ToastAndroid.showWithGravity(
+                connectingError.message,
+                2,
+                ToastAndroid.CENTER,
+            );
+        }
+
+        return () => {
+            subscription.remove();
+        };
+    }, [BLTManager, scanningError, connectingError]);
 
     const scanForPeripherals = () => {
         requestPermissions(isGranted => {
-            console.log('isGranted--> ', isGranted);
             if (isGranted) {
                 scanForDevices();
             }
         });
     };
 
-    const closeSheet = () => {
-        setVisible(false);
-    };
-
-    const openSheet = () => {
-        scanForPeripherals();
-        setVisible(true);
-        console.log(allDevices);
+    const handleConnect = (device: Device) => {
+        if (connectedDevice && connectedDevice.id !== device.id) {
+            disconnectFromDevice(connectedDevice);
+            connectToDevice(device);
+        } else if (connectedDevice && connectedDevice.id === device.id) {
+            disconnectFromDevice(device);
+        } else {
+            connectToDevice(device);
+        }
     };
 
     return (
-        <SafeAreaView>
-            <Text style={{ paddingLeft: 20 }}>Bluetooth Devices</Text>
-            <TouchableOpacity onPress={() => openSheet()} style={{ height: 20, margin: 20 }}>
-                <Text>Open Sheet</Text>
-            </TouchableOpacity>
-            <Modal
-                transparent={true}
-                visible={visible}
-                onRequestClose={() => closeSheet()}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.bottomSheet}>
-                        <TouchableOpacity style={styles.closeButton} onPress={() => closeSheet()}>
-                            <Text style={styles.closeButtonText}>Close</Text>
+        <View style={styles.container}>
+            {!allDevices.length && (
+                <Button title={isScanning ? Strings.SCANNING_TEXT : Strings.SCAN_TEXT} onPress={scanForPeripherals} disabled={isScanning} />
+            )}
+            <View style={styles.deviceList}>
+                {allDevices.map(device => (
+                    <View key={device.id} style={styles.deviceItem}>
+                        <TouchableOpacity
+                        >
+                            <Text>{Strings.DEVICE_ID_TEXT}{device.id}</Text>
+                            <Text>{Strings.DEVICE_NAME_TEXT} {device.name}</Text>
                         </TouchableOpacity>
-                        <View>
-                            {
-                                allDevices.map((device, index) => (
-                                    <View key={index} >
-                                        <Text>{device.id} {device.name} {device.localName}</Text>
-                                    </View>
-                                ))
-                            }
-                        </View>
+                        <Button
+                            title={connectedDevice && connectedDevice.id === device.id ? Strings.DISCONNECT_TEXT : Strings.CONNECT_TEXT}
+                            onPress={() => handleConnect(device)}
+                        />
                     </View>
+                ))}
+            </View>
+            {connectedDevice && (
+                <View style={styles.connectedDeviceInfo}>
+                    <Text style={styles.textstyle}>{Strings.DEVICE_ID_TEXT} {connectedDevice.id}</Text>
+                    <Text style={styles.textstyle}>{Strings.DEVICE_NAME_TEXT} {deviceName}</Text>
+                    <Text style={styles.textstyle}>{Strings.DEVICE_VALUE_TEXT} {deviceValue}</Text>
                 </View>
-            </Modal>
-        </SafeAreaView>
+            )}
+        </View>
     );
 };
-
-const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    bottomSheet: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 20,
-        height: '60%'
-    },
-    closeButton: {
-        alignSelf: 'flex-end',
-        padding: 10,
-    },
-    closeButtonText: {
-        fontSize: 16,
-        color: '#007AFF',
-    },
-});
 
 export default BluetoothScreen;
