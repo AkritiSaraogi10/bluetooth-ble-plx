@@ -85,16 +85,17 @@ const BluetoothScreen = () => {
 
     return (
         <View style={styles.container}>
-            {!allDevices.length && (
+            {/* {!allDevices.length && (
                 <Button title={isScanning ? Strings.SCANNING_TEXT : Strings.SCAN_TEXT} onPress={scanForPeripherals} disabled={isScanning} />
-            )}
+            )} */}
+            <Button title={isScanning ? Strings.SCANNING_TEXT : Strings.SCAN_TEXT} onPress={scanForPeripherals} disabled={isScanning} />
             <View style={styles.deviceList}>
                 {allDevices.map(device => (
                     <View key={device.id} style={styles.deviceItem}>
                         <TouchableOpacity
                         >
-                            <Text>{Strings.DEVICE_ID_TEXT}{device.id}</Text>
-                            <Text>{Strings.DEVICE_NAME_TEXT} {device.name}</Text>
+                            {/* <Text style={styles.textstyle}>{Strings.DEVICE_ID_TEXT}{device.id}</Text> */}
+                            <Text style={styles.textstyle}>{Strings.DEVICE_NAME_TEXT} {device.name}</Text>
                         </TouchableOpacity>
                         <Button
                             title={connectedDevice && connectedDevice.id === device.id ? Strings.DISCONNECT_TEXT : Strings.CONNECT_TEXT}
@@ -105,7 +106,7 @@ const BluetoothScreen = () => {
             </View>
             {connectedDevice && (
                 <View style={styles.connectedDeviceInfo}>
-                    <Text style={styles.textstyle}>{Strings.DEVICE_ID_TEXT} {connectedDevice.id}</Text>
+                    {/* <Text style={styles.textstyle}>{Strings.DEVICE_ID_TEXT} {connectedDevice.id}</Text> */}
                     <Text style={styles.textstyle}>{Strings.DEVICE_NAME_TEXT} {deviceName}</Text>
                     <Text style={styles.textstyle}>{Strings.DEVICE_VALUE_TEXT} {deviceValue}</Text>
                 </View>

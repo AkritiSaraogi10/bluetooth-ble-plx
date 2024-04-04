@@ -95,8 +95,11 @@ export default function useBLE(): BluetoothLowEnergyApi {
                     }
                     return prevState;
                 });
-                bleManager.stopDeviceScan();
-                setIsScanning(false);
+                setTimeout(() => {      
+                     bleManager.stopDeviceScan();  
+                     setIsScanning(false);     
+                     console.log('Scanning stopped');   
+                 }, 15000);
             }
         });
     };
@@ -151,6 +154,7 @@ export default function useBLE(): BluetoothLowEnergyApi {
             try {
                 bleManager.cancelDeviceConnection(device.id);
                 setConnectedDevice(null);
+                setdeviceValue(0);
                 console.log('Device disconnected successfully.');
             } catch (error) {
                 console.log('Error disconnecting from device:', error);
